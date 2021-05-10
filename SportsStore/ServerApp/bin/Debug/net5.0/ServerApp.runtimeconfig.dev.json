@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\magor\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\magor\\.nuget\\packages"
+    ]
+  }
+}
