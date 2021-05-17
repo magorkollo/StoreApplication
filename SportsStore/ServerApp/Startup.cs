@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using ServerApp.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace ServerApp {
     public class Startup {
@@ -29,8 +30,17 @@ namespace ServerApp {
             services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddJsonOptions(opts => {
+                    opts.JsonSerializerOptions.IgnoreNullValues = true;
+                }).AddNewtonsoftJson();
+                
             services.AddRazorPages();
+
+            services.AddSwaggerGen(options => {
+                options.SwaggerDoc("v1", 
+                    new OpenApiInfo { Title = "SportsStore API", Version = "v1"});
+            });
         }
 
 
@@ -54,6 +64,11 @@ namespace ServerApp {
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(options => {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "SportStore API");
             });
 
             app.UseSpa(spa => {
