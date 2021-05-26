@@ -4,15 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
 using ServerApp.Models.BindingTargets;
+using Microsoft.AspNetCore.JsonPatch;
 using System.Text.Json;
 using System.Reflection;
 using System.ComponentModel;
-using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ServerApp.Controllers {
 
     [Route("api/products")]
     [ApiController]
+    [Authorize(Roles = "Administrator")]
     public class ProductValuesController : Controller {
         private DataContext context;
 
@@ -21,6 +23,7 @@ namespace ServerApp.Controllers {
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public Product GetProduct(long id) {      
             Product result = context.Products
                 .Include(p => p.Supplier).ThenInclude(s => s.Products)
@@ -50,8 +53,9 @@ namespace ServerApp.Controllers {
         }
 
         [HttpGet]
-        public IEnumerable<Product> GetProducts(string category, string search, 
-                bool related = false) {
+        [AllowAnonymous]
+        public IActionResult GetProducts(string category, string search,
+                bool related = false, bool metadata = false) {
             IQueryable<Product> query = context.Products;
 
             if (!string.IsNullOrWhiteSpace(category)) {
@@ -64,7 +68,7 @@ namespace ServerApp.Controllers {
                     || p.Description.ToLower().Contains(searchLower));
             }
 
-            if (related) {
+            if (related && HttpContext.User.IsInRole("Administrator")) {
                 query = query.Include(p => p.Supplier).Include(p => p.Ratings);
                 List<Product> data = query.ToList();
                 data.ForEach(p => {
@@ -75,11 +79,20 @@ namespace ServerApp.Controllers {
                         p.Ratings.ForEach(r => r.Product = null);
                     }
                 });
-                return data;
+                return metadata ? CreateMetadata(data) : Ok(data);
             } else {
-                return query;
+                return metadata ? CreateMetadata(query) : Ok(query);
             }
         }
+
+        private IActionResult CreateMetadata(IEnumerable<Product> products) {
+            return Ok(new {
+                data = products,
+                categories = context.Products.Select(p => p.Category)
+                    .Distinct().OrderBy(c => c)
+            });
+        }
+
 
         [HttpPost]
         public IActionResult CreateProduct([FromBody] ProductData pdata) {
@@ -121,7 +134,7 @@ namespace ServerApp.Controllers {
                                 .First(p => p.ProductId == id);
             ProductData pdata = new ProductData { Product = product };
             
-            patch.ApplyTo(pdata, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
+            patch.ApplyTo(pdata, ModelState);
 
             if (ModelState.IsValid && TryValidateModel(pdata)) {
 

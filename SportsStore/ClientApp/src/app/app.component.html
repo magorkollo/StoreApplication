@@ -1,8 +1,5 @@
-<div class="p-2">
-    <table class="table table-sm">
-    <tr><th>Name</th><td>{{product?.name}}</td></tr>
-    <tr><th>Category</th><td>{{product?.category}}</td></tr>
-    <tr><th>Description</th><td>{{product?.description}}</td></tr>
-    <tr><th>Price</th><td>{{product?.price}}</td></tr>
-    </table>
-    </div>
+<div class="bg-danger text-white text-center p-2 m-2" *ngIf="error != null">
+    <h6 *ngFor="let e of error">{{e}}</h6>
+    <button class="btn btn-warning" (click)="clearError()">OK</button>
+</div>
+<router-outlet></router-outlet>

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using ServerApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace ServerApp {
     public class Startup {
@@ -30,6 +31,11 @@ namespace ServerApp {
             services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(connectionString));
 
+                services.AddDbContext<IdentityDataContext>(options =>
+                options.UseSqlServer(Configuration["ConnectionStrings:Identity"]));
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                 .AddEntityFrameworkStores<IdentityDataContext>();
+
             services.AddControllersWithViews()
                 .AddJsonOptions(opts => {
                     opts.JsonSerializerOptions.IgnoreNullValues = true;
@@ -40,6 +46,19 @@ namespace ServerApp {
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", 
                     new OpenApiInfo { Title = "SportsStore API", Version = "v1"});
+            });
+
+            services.AddDistributedSqlServerCache(options => {
+                options.ConnectionString = connectionString;
+                options.SchemaName = "dbo";
+                options.TableName = "SessionData";
+            });
+
+            services.AddSession(options => {
+                options.Cookie.Name = "SportsStore.Session";
+                options.IdleTimeout = System.TimeSpan.FromHours(48);
+                options.Cookie.HttpOnly = false;
+                options.Cookie.IsEssential = true;
             });
         }
 
@@ -56,13 +75,23 @@ namespace ServerApp {
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseSession();
+
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                
+                endpoints.MapControllerRoute(
+                    name: "angular_fallback",
+                    pattern: "{target:regex(admin|store|cart|checkout):nonfile}/{*catchall}",
+                    defaults: new { controller = "Home", action = "Index"});
+                    
                 endpoints.MapRazorPages();
             });
 
@@ -83,6 +112,7 @@ namespace ServerApp {
             });
 
             SeedData.SeedDatabase(services.GetRequiredService<DataContext>());
+            IdentitySeedData.SeedDatabase(services).Wait();
         }
     }
 }

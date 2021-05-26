@@ -12,6 +12,39 @@
   "ProjectWorkspaceState": {
     "TagHelpers": [
       {
+        "HashCode": 1661767289,
+        "Kind": "Components.Component",
+        "Name": "ServerApp.BlazorApp.Pages.FetchData",
+        "AssemblyName": "ServerApp",
+        "CaseSensitive": true,
+        "TagMatchingRules": [
+          {
+            "TagName": "FetchData"
+          }
+        ],
+        "Metadata": {
+          "Runtime.Name": "Components.IComponent",
+          "Common.TypeName": "ServerApp.BlazorApp.Pages.FetchData"
+        }
+      },
+      {
+        "HashCode": 84997630,
+        "Kind": "Components.Component",
+        "Name": "ServerApp.BlazorApp.Pages.FetchData",
+        "AssemblyName": "ServerApp",
+        "CaseSensitive": true,
+        "TagMatchingRules": [
+          {
+            "TagName": "ServerApp.BlazorApp.Pages.FetchData"
+          }
+        ],
+        "Metadata": {
+          "Runtime.Name": "Components.IComponent",
+          "Common.TypeName": "ServerApp.BlazorApp.Pages.FetchData",
+          "Components.NameMatch": "Components.FullyQualifiedNameMatch"
+        }
+      },
+      {
         "HashCode": -1325194481,
         "Kind": "Components.Component",
         "Name": "Microsoft.AspNetCore.Components.Authorization.AuthorizeRouteView",
@@ -15646,6 +15679,11 @@
     {
       "FilePath": "d:\\University\\An3Sem2\\II\\project\\SportsStore\\SportsStore\\ServerApp\\Views\\Home\\Index.cshtml",
       "TargetPath": "Views\\Home\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "d:\\University\\An3Sem2\\II\\project\\SportsStore\\SportsStore\\ServerApp\\Views\\Account\\Login.cshtml",
+      "TargetPath": "Views\\Account\\Login.cshtml",
       "FileKind": "mvc"
     },
     {
